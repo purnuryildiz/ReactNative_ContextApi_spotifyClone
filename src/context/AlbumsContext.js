@@ -50,65 +50,12 @@ const AlbumsProvider = ({children}) => {
     }
   };
 
-  // Shazam'dan albüme ait şarkıları almak
-  const getTracksFromShazam = async albumName => {
-    if (!albumName) {
-      console.log('No album name provided for Shazam search');
-      return; // Eğer albüm adı yoksa, işlem yapılmaz
-    }
-
-    const options = {
-      method: 'GET',
-      url: 'https://shazam.p.rapidapi.com/search',
-      params: {
-        term: albumName, // Albüm ismini kullanarak arama yapıyoruz
-        locale: 'en-US',
-        offset: '0',
-        limit: '10',
-      },
-      headers: {
-        'x-rapidapi-key': '16542e0184mshf352632a2e2fe8ap16d83ajsn2c7bc139301e',
-        'x-rapidapi-host': 'shazam.p.rapidapi.com',
-      },
-    };
-
-    try {
-      const response = await axios.request(options);
-      console.log(response);
-      const tracks = response.data.tracks.hits.map(hit => ({
-        trackName: hit.track.title,
-        artistName: hit.track.subtitle,
-        trackUrl: hit.track.url,
-        coverArt: hit.track.images.coverart,
-        albumName: albumName, // Albüm adını her şarkıya ekliyoruz
-      }));
-      setTracks(tracks); // Şarkıları state'e ekliyoruz
-      console.log(tracks);
-    } catch (err) {
-      console.error('Error fetching tracks from Shazam:', err);
-      setError(err);
-    }
-  };
-
   // useEffect içinde veri çekme işlemi
   useEffect(() => {
     getData('popular albums', setAlbums); // Popüler albümleri çek
     getData('Harry Styles, Shawn Mendes, Taylor Swift', setRecentAlbums); // Son eklenen albümleri çek
     getData('Ed Sheeran, Imagine Dragons, Sia, Bruno Mars', setMadeFor); // Made For albümleri çek
   }, []);
-
-  // Albüm tıklandığında şarkı verilerini almak
-  useEffect(() => {
-    if (selectedAlbum) {
-      console.log('Selected album:', selectedAlbum); // Albüm ismini kontrol et
-      getTracksFromShazam(selectedAlbum); // Tıklanan albümün şarkılarını al
-    }
-  }, [selectedAlbum]); // Sadece selectedAlbum değiştiğinde çalışır
-
-  // Albüme tıklama handler'ı
-  const handleAlbumClick = albumName => {
-    setSelectedAlbum(albumName); // Tıklanan albümü state'e kaydediyoruz
-  };
 
   return (
     <Albums.Provider
@@ -118,7 +65,6 @@ const AlbumsProvider = ({children}) => {
         madeFor,
         error,
         loading,
-        handleAlbumClick,
         tracks,
       }}>
       {children}

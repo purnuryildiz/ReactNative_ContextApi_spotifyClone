@@ -21,6 +21,8 @@ import {Albums} from '../context/AlbumsContext';
 import Loader from '../components/Loader';
 import Error from '../components/Error';
 import {Artists} from '../context/ArtistsContext';
+import {Podcasts} from '../context/PodcastsContext';
+import PodcastCard from '../components/PodcastCard';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -39,8 +41,73 @@ const HomeScreen = () => {
     error: artistsError,
   } = useContext(Artists);
 
+  const {
+    podcasts,
+    loading: podcastsLoading,
+    error: podcastserror,
+  } = useContext(Podcasts);
+
   return (
     <LinearGradient colors={['#040306', '#131624']} style={{flex: 1}}>
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginRight: 10,
+          marginTop: 50,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 20,
+            padding: 10,
+          }}>
+          {/* Profile */}
+          <TouchableOpacity>
+            <Image
+              source={{
+                uri: 'https://www.shutterstock.com/image-photo/enthusiastic-white-girl-long-shiny-260nw-1222083556.jpg',
+              }}
+              style={{
+                width: 40,
+                height: 40,
+                resizeMode: 'cover',
+                borderRadius: 20,
+              }}
+            />
+          </TouchableOpacity>
+          <Text style={{color: 'white', fontSize: 25, fontWeight: 'bold'}}>
+            Purnur
+          </Text>
+        </View>
+        <View>
+          <MaterialCommunityIcons
+            name="lightning-bolt-outline"
+            size={24}
+            color="white"
+          />
+        </View>
+      </View>
+
+      {/* Music-Podcasts */}
+      <View
+        style={{
+          marginTop: 20,
+          marginBottom: -40,
+          marginLeft: 15,
+          flexDirection: 'row',
+          gap: 30,
+        }}>
+        <Pressable style={styles.categoryBox}>
+          <Text style={{color: 'white', fontSize: 16}}>Music</Text>
+        </Pressable>
+        <Pressable style={styles.categoryBox}>
+          <Text style={{color: 'white', fontSize: 15}}>Podcasts</Text>
+        </Pressable>
+      </View>
       {albumsLoading ? (
         <Loader />
       ) : albumsError ? (
@@ -50,58 +117,6 @@ const HomeScreen = () => {
           style={{marginTop: 60, marginLeft: 10}}
           contentContainerStyle={{paddingBottom: 100}}>
           <View Style={{padding: 20}}>
-            {/* Header */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginRight: 10,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 20,
-                  padding: 10,
-                }}>
-                {/* Profile */}
-                <TouchableOpacity>
-                  <Image
-                    source={{
-                      uri: 'https://www.shutterstock.com/image-photo/enthusiastic-white-girl-long-shiny-260nw-1222083556.jpg',
-                    }}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      resizeMode: 'cover',
-                      borderRadius: 20,
-                    }}
-                  />
-                </TouchableOpacity>
-                <Text
-                  style={{color: 'white', fontSize: 25, fontWeight: 'bold'}}>
-                  Purnur
-                </Text>
-              </View>
-              <View>
-                <MaterialCommunityIcons
-                  name="lightning-bolt-outline"
-                  size={24}
-                  color="white"
-                />
-              </View>
-            </View>
-
-            {/* Music-Podcasts */}
-            <View style={{marginTop: 30, flexDirection: 'row', gap: 30}}>
-              <Pressable style={styles.categoryBox}>
-                <Text style={{color: 'white', fontSize: 16}}>Music</Text>
-              </Pressable>
-              <Pressable style={styles.categoryBox}>
-                <Text style={{color: 'white', fontSize: 15}}>Podcasts</Text>
-              </Pressable>
-            </View>
             {/* Liked Songs- Pop- Rock */}
             <View>
               {/* Liked Songs */}
@@ -178,6 +193,17 @@ const HomeScreen = () => {
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {madeFor?.map((album, index) => (
                   <RecentlyPlayedCard album={album} key={index} />
+                ))}
+              </ScrollView>
+            </View>
+            {/* Your Top Podcasts */}
+            <View style={{marginTop: 30}}>
+              <Text style={{color: 'white', fontSize: 19, fontWeight: 'bold'}}>
+                Your Top Podcasts
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {podcasts?.map((podcast, index) => (
+                  <PodcastCard podcast={podcast} key={index} />
                 ))}
               </ScrollView>
             </View>

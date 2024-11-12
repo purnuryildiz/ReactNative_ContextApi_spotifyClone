@@ -66,8 +66,28 @@ const LikedSongScreen = () => {
 
   const setupPlayer = async () => {
     try {
+      //Trackplayer kütühanesinin oynatıcıyı kurmasını sağlar .Bu işlem , oynatıcıyı başlatmak için gerekli olan yapılandırmayı sağlar.
       await TrackPlayer.setupPlayer();
-    } catch (error) {}
+      TrackPlayer.updateOptions({
+        //oynatıcının sahip olacağı özellikleri belirler
+        capabilities: [
+          TrackPlayer.CAPABILITY_PLAY,
+          TrackPlayer.CAPABILITY_PAUSE,
+          TrackPlayer.CAPABILITY_STOP,
+          TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+          TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+          TrackPlayer.CAPABILITY_SEEK_TO,
+        ],
+        // compactCapabilities: [
+        //   TrackPlayer.CAPABILITY_PLAY,
+        //   TrackPlayer.CAPABILITY_PAUSE,
+        //   TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+        //   TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+        // ],
+      });
+    } catch (error) {
+      console.log('Error setting up player:', error);
+    }
   };
 
   //handlePlay Fonksiyonu
@@ -91,10 +111,50 @@ const LikedSongScreen = () => {
     }
   };
 
+  //USEEFFECT
   useEffect(() => {
     handleSearch();
     setupPlayer();
   }, []);
+
+  //FORMATIME
+  const formatTime = seconds => {
+    // toplam saniyeyi dakikaya çevir
+    const mins = Math.floor(seconds / 60);
+    //toplam saniye sayısından geriye kalan saniyeyi hesaplar
+    const secs = Math.floor(seconds % 60);
+    return `${mins} :  ${secs < 10 ? '0' : ''}${secs} `;
+  };
+
+  //TOGGLEPLAYBACK
+
+  const togglePlayback = async () => {
+    if (isPlaying) {
+      //Müzik oynatılıyorsa durdur
+      await TrackPlayer.pause();
+    } else {
+      //Müzik duruyorsa oynat
+      await TrackPlayer.play();
+    }
+    //isPlaying değerini oynatma ve durdurma butonuna basıldığında tam tersi değerine çevir:
+    setIsPlaying(!isPlaying);
+  };
+
+  //SEEKBACKWARD
+  //oynatılan müziği pozisyona göre 5 saniye geri alınması
+  const seekBackward = async () => {
+    const position = await TrackPlayer.getPosition();
+    TrackPlayer.seekTo(position - 5);
+  };
+
+  //SEEKFORWARD
+  //oynatılan müziği pozisyona göre 5 saniye geri alınması
+
+  const seekForward = async () => {
+    const position = await TrackPlayer.getPosition();
+    TrackPlayer.seekTo(position + 5);
+  };
+
   return (
     <>
       <LinearGradient colors={['#614386', '#516395']} style={{flex: 1}}>
@@ -224,7 +284,7 @@ const LikedSongScreen = () => {
         </ScrollView>
       </LinearGradient>
       {/* Present Song */}
-      <Pressable
+      {/* <Pressable
         onPress={() => setModalVisible(!modalVisible)}
         style={{
           flexDirection: 'row',
@@ -268,7 +328,7 @@ const LikedSongScreen = () => {
             <AntDesign name="pause" size={28} color="white" />
           </Pressable>
         </View>
-      </Pressable>
+      </Pressable> */}
       {/* MODAL */}
 
       <Modal
@@ -295,7 +355,13 @@ const LikedSongScreen = () => {
             <Pressable onPress={() => setModalVisible(false)}>
               <AntDesign name="down" size={22} color="white" />
             </Pressable>
-            <Text style={{fontSize: 14, fontWeight: 'bold', color: 'white'}}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: '500',
+                color: 'white',
+                letterSpacing: 0.8,
+              }}>
               {selectedTrack?.title}
             </Text>
             <Entypo name="dots-three-vertical" size={22} color="white" />
@@ -306,7 +372,12 @@ const LikedSongScreen = () => {
               source={{
                 uri: selectedTrack?.images.coverart,
               }}
-              style={{width: '100%', height: 330, borderRadius: 4}}
+              style={{
+                width: '100%',
+                height: 330,
+                borderRadius: 4,
+                resizeMode: 'contain',
+              }}
             />
           </View>
           {/* Song Information */}
@@ -342,7 +413,14 @@ const LikedSongScreen = () => {
                 backgroundColor: 'gray',
                 borderRadius: 5,
               }}>
-              <View style={[styles.progressbar, {width: 1 * 100}]} />
+              <View
+                style={[
+                  styles.progressbar,
+                  {
+                    width: `${(progress.position / progress.duration) * 100}%`,
+                  },
+                ]}
+              />
               <View
                 style={{
                   position: 'absolute',
@@ -351,7 +429,7 @@ const LikedSongScreen = () => {
                   height: 10,
                   backgroundColor: 'white',
                   borderRadius: 5,
-                  left: 100,
+                  left: `${(progress.position / progress.duration) * 100}%`,
                 }}
               />
             </View>
@@ -363,8 +441,12 @@ const LikedSongScreen = () => {
                 marginTop: 10,
                 alignItems: 'center',
               }}>
-              <Text style={{color: 'white', fontSize: 15}}>0:00</Text>
-              <Text style={{color: 'white', fontSize: 15}}>0:00</Text>
+              <Text style={{color: 'white', fontSize: 15}}>
+                {formatTime(progress.position)}
+              </Text>
+              <Text style={{color: 'white', fontSize: 15}}>
+                {formatTime(progress.duration)}
+              </Text>
             </View>
             {/* PLAY ICONS */}
             <View
@@ -381,9 +463,9 @@ const LikedSongScreen = () => {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 15,
                 }}>
-                <Pressable>
+                <Pressable onPress={seekBackward}>
                   <Entypo
                     name="controller-fast-backward"
                     size={40}
@@ -393,19 +475,17 @@ const LikedSongScreen = () => {
                 <Pressable>
                   <Ionicons name="play-skip-back" size={40} color="white" />
                 </Pressable>
-                <Pressable>
+                <Pressable onPress={togglePlayback}>
                   {isPlaying ? (
                     <AntDesign name="pausecircle" size={60} color="white" />
                   ) : (
-                    <Pressable>
-                      <AntDesign name="play" size={60} color="white" />
-                    </Pressable>
+                    <AntDesign name="play" size={60} color="white" />
                   )}
                 </Pressable>
                 <Pressable>
                   <Ionicons name="play-skip-forward" size={40} color="white" />
                 </Pressable>
-                <Pressable>
+                <Pressable onPress={seekForward}>
                   <Entypo
                     name="controller-fast-forward"
                     size={40}

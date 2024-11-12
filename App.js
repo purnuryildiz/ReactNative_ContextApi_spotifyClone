@@ -5,16 +5,19 @@ import Navigation from './src/navigation/Routes';
 import {AlbumsProvider} from './src/context/AlbumsContext';
 import {ArtistsProvider} from './src/context/ArtistsContext';
 import {GenresProvider} from './src/context/GenresContext';
+import {PodcastsProvider} from './src/context/PodcastsContext';
 const App = () => {
   return (
     <>
-      <GenresProvider>
-        <ArtistsProvider>
-          <AlbumsProvider>
-            <Navigation />
-          </AlbumsProvider>
-        </ArtistsProvider>
-      </GenresProvider>
+      <PodcastsProvider>
+        <GenresProvider>
+          <ArtistsProvider>
+            <AlbumsProvider>
+              <Navigation />
+            </AlbumsProvider>
+          </ArtistsProvider>
+        </GenresProvider>
+      </PodcastsProvider>
     </>
   );
 };

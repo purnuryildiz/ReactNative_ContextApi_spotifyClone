@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap', // Ensures the cards wrap to the next line
     justifyContent: 'space-between', // Spacing between cards
+    marginHorizontal: 5,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
   header: {
     color: 'white',
     margin: 10,
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });
